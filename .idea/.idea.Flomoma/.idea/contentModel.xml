@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\jonak\.Rider2018.1\system\resharper-host\local\Transient\ReSharperHost\v12\SolutionCaches\_Flomoma.1284180328.00" t="ExcludeRecursive" />
+    <e p="C:\Users\jonak\Sync\Code\Unity\Flomoma\Flomoma" t="IncludeRecursive">
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets\Resources" t="Include">
+        <e p="residents.txt" t="Include" />
+      </e>
+      <e p="Assets\Scripts" t="Include">
+        <e p="Art.cs" t="Include" />
+        <e p="Bubble.cs" t="Include" />
+        <e p="CameraExtension.cs" t="Include" />
+        <e p="ColorRandomizer.cs" t="Include" />
+        <e p="Letter.cs" t="Include" />
+        <e p="Line.cs" t="Include" />
+        <e p="Music" t="Include">
+          <e p="Accidental.cs" t="Include" />
+          <e p="MusicGenerator.cs" t="Include" />
+          <e p="Note.cs" t="Include" />
+          <e p="Scale.cs" t="Include" />
+          <e p="ScaleType.cs" t="Include" />
+          <e p="StepType.cs" t="Include" />
+          <e p="Tonality.cs" t="Include" />
+        </e>
+        <e p="Spinner.cs" t="Include" />
+      </e>
+      <e p="Flomoma.sln" t="IncludeFlat" />
+      <e p="Library" t="ExcludeRecursive" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Temp" t="ExcludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+      </e>
+    </e>
+  </component>
+</project>
