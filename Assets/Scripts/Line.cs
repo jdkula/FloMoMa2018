@@ -1,6 +1,5 @@
 ﻿using Music;
 using UnityEngine;
-using Random = System.Random;
 
 [RequireComponent(typeof(LineRenderer))]
 [RequireComponent(typeof(AudioSource))]
@@ -41,6 +40,7 @@ public class Line : MonoBehaviour
 		_timeStart = Time.time;
 		_line = GetComponent<LineRenderer>();
 		_audioSource = GetComponent<AudioSource>();
+		_audioSource.volume = Art.Volume;
 
 		Material m = _line.materials[0];
 		_line.materials[0] = m;
@@ -100,6 +100,7 @@ public class Line : MonoBehaviour
 
 	public void PlayNote()
 	{
+		_audioSource.volume = Art.Volume;
 		if (_diddy == null || _diddyIndex >= _diddy.GetLength(0))
 		{
 			_diddy = MusicGenerator.GetDiddy(FullName.Length, FullName.GetHashCode());

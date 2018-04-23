@@ -15,7 +15,6 @@
         <e p="Letter.cs" t="Include" />
         <e p="Line.cs" t="Include" />
         <e p="Music" t="Include">
-          <e p="Accidental.cs" t="Include" />
           <e p="MusicGenerator.cs" t="Include" />
           <e p="Note.cs" t="Include" />
           <e p="Scale.cs" t="Include" />

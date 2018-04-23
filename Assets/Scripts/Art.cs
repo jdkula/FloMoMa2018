@@ -1,11 +1,19 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Xml.Schema;
 using UnityEngine;
+using UnityEngine.Assertions.Must;
+using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class Art : MonoBehaviour
 {
     public string[] Names;
+
+    public static int SeedShifter = 0;
+    public static float Volume = 1f;
 
     public float Radius = 5;
 
@@ -14,17 +22,23 @@ public class Art : MonoBehaviour
     public GameObject LetterPrefab;
     public GameObject BubblePrefab;
 
+    public GameObject Canvas;
+    public Text StatusText;
+    public Text ClockText;
+
     public Dictionary<char, Vector3> Locations;
-    
+
     private int _currentIndex;
+
     private delegate void SimpleDelegate();
+
     private event SimpleDelegate OnLinkDone;
-    
+
     private ArrayList _bubbles = new ArrayList();
-    
+
     void Shuffle(string[] texts)
     {
-        for (int t = 0; t < texts.Length; t++ )
+        for (int t = 0; t < texts.Length; t++)
         {
             string tmp = texts[t];
             int r = Random.Range(t, texts.Length);
@@ -32,7 +46,7 @@ public class Art : MonoBehaviour
             texts[r] = tmp;
         }
     }
-    
+
 
     // Use this for initialization
     void Start()
@@ -59,7 +73,7 @@ public class Art : MonoBehaviour
         OnLinkDone += delegate
         {
             _currentIndex = (_currentIndex + 1) % Names.Length;
-            if(_currentIndex == 0) Shuffle(Names);
+            if (_currentIndex == 0) Shuffle(Names);
             LinkName(Names[_currentIndex], 1);
         };
     }
@@ -112,8 +126,9 @@ public class Art : MonoBehaviour
         {
             if (currentLine == 1)
             {
-                UnityEngine.Random.InitState(name.GetHashCode());
+                UnityEngine.Random.InitState(name.GetHashCode() + SeedShifter);
             }
+
             GameObject line = Instantiate(DynamicLinePrefab, transform);
             line.name = name;
             Line l = line.GetComponent<Line>();
@@ -195,6 +210,11 @@ public class Art : MonoBehaviour
         _bubbles.Remove(bubble);
     }
 
+    private int mod(int x, int m)
+    {
+        return (x % m + m) % m;
+    }
+    
     // Update is called once per frame
     void Update()
     {
@@ -205,16 +225,124 @@ public class Art : MonoBehaviour
             bubble.transform.position = new Vector3(
                 Random.Range(Camera.main.OrthographicBounds().min.x, Camera.main.OrthographicBounds().max.x),
                 Random.Range(Camera.main.OrthographicBounds().min.y, Camera.main.OrthographicBounds().max.y)
-                );
+            );
         }
+
         if (Input.GetKeyDown(KeyCode.DownArrow))
         {
             Time.timeScale -= 0.1f;
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Time Scale: " + Time.timeScale;
         }
 
         if (Input.GetKeyDown(KeyCode.UpArrow))
         {
             Time.timeScale += 0.1f;
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Time Scale: " + Time.timeScale;
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            SeedShifter += 1;
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Random Adjust: " + SeedShifter;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            SeedShifter -= 1;
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Random Adjust: " + SeedShifter;
+        }
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            SeedShifter = 0;
+            Time.timeScale = 1f;
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Reset";
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            Shuffle(Names);
+            _currentIndex = 0;
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Shuffled Names";
+        }
+        
+        if (Input.GetKey(KeyCode.S))
+        {
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Random Adjust: " + SeedShifter + "\nTime Scale: " + Time.timeScale
+                              + "\nVolume: " + Volume
+                              + "\nName " + (_currentIndex + 1) + "/" + Names.Length;
+        }
+
+        if (Input.GetKeyDown(KeyCode.H))
+        {
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Help:\nUp/Down: Adjust Speed\nLeft/Right: Adjust Random Generation\n"
+                + "[/]: Previous/Skip\n,/. Volume down/up\nSPACE: Pause/Play\n"
+                + "S: Show Status\nR: Reset Time and Random Generation\nF: Shuffle Names\nH: Help"
+                + "\nESC: Quit";
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftBracket))
+        {
+            _currentIndex = mod(_currentIndex - 1, Names.Length);
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Next Name: " + (_currentIndex + 2) % Names.Length + "/" + Names.Length;
+        }
+
+        if (Input.GetKeyDown(KeyCode.RightBracket))
+        {
+            _currentIndex = mod(_currentIndex + 1, Names.Length);
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Next Name: " + (_currentIndex + 2) % Names.Length + "/" + Names.Length;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Comma))
+        {
+            Volume = bound(Volume - 0.1f, 0f, 1f);
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Volume: " + Volume;
+        }
+        
+        if (Input.GetKeyDown(KeyCode.Period))
+        {
+            Volume = bound(Volume + 0.1f, 0f, 1f);
+            if (!Canvas.activeSelf) Canvas.SetActive(true);
+            StatusText.text = "Volume: " + Volume;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (Math.Abs(Time.timeScale) > 0.001f)
+            {
+                Time.timeScale = 0;
+                if (!Canvas.activeSelf) Canvas.SetActive(true);
+                StatusText.text = "Paused.";
+            }
+            else
+            {
+                Time.timeScale = 1f;
+                if (!Canvas.activeSelf) Canvas.SetActive(true);
+                StatusText.text = "Unpaused.";
+            }
+        }
+
+        if (Input.GetKeyUp(KeyCode.DownArrow) || Input.GetKeyUp(KeyCode.UpArrow) ||
+            Input.GetKeyUp(KeyCode.RightArrow) || Input.GetKeyUp(KeyCode.LeftArrow)
+            || Input.GetKeyUp(KeyCode.S) || Input.GetKeyUp(KeyCode.R)
+            || Input.GetKeyUp(KeyCode.F) || Input.GetKeyUp(KeyCode.H)
+            || Input.GetKeyUp(KeyCode.RightBracket) || Input.GetKeyUp(KeyCode.LeftBracket)
+            || Input.GetKeyUp(KeyCode.Comma) || Input.GetKeyUp(KeyCode.Period)
+            || Input.GetKeyUp(KeyCode.Space))
+        {
+            StatusText.text = "";
+            Canvas.SetActive(false);
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -225,6 +353,16 @@ public class Art : MonoBehaviour
             Application.Quit();
 #endif
         }
+
+        var now = System.DateTime.Now;
+        ClockText.text = now.ToString("h:mm");
+    }
+
+    private float bound(float value, float min, float max)
+    {
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
     }
 
     protected virtual void OnOnLinkDone()

@@ -10,7 +10,7 @@ namespace Music
         {
             StepType.Whole, StepType.Whole, StepType.Half, StepType.Whole, StepType.Whole, StepType.Whole, StepType.Half
         };
-        
+
         private static StepType[] _naturalMinorScale =
         {
             StepType.Whole, StepType.Half, StepType.Whole, StepType.Whole, StepType.Half, StepType.Whole, StepType.Whole
@@ -47,36 +47,23 @@ namespace Music
         private Note _startNote;
         private StepType[] _scale;
 
-        public Note GetNote(int scaleDegree, Accidental acc = Accidental.Natural)
+        public Note GetNote(int scaleDegree, int semitoneAdjust = 0)
         {
-            int noteIndex = MusicGenerator.GetNoteIndex(_startNote.NoteName);
-            int octaveIndex = MusicGenerator.GetOctaveIndex(_startNote.Octave);
+//            int noteIndex = MusicGenerator.GetNoteIndex(_startNote.NoteName);
+//            int octaveIndex = MusicGenerator.GetOctaveIndex(_startNote.Octave);
             int multiplier = scaleDegree < 0 ? -1 : 1;
             int additive = scaleDegree < 0 ? -1 : 0;
             scaleDegree *= multiplier;
-            noteIndex += (int) acc;
+
+            int adjustment = 0;
             for (int i = 0; i < scaleDegree; i++)
             {
-                noteIndex += (int) _scale[mod(i * multiplier + additive, _scale.Length)] * multiplier;
-                if (noteIndex >= MusicGenerator.Notes.GetLength(0) || noteIndex < 0)
-                {
-                    noteIndex = mod(noteIndex, MusicGenerator.Notes.GetLength(0));
-                    octaveIndex += multiplier;
-                    if (octaveIndex >= MusicGenerator.Notes.GetLength(1))
-                    {
-                        octaveIndex = 0;
-                    }
-
-                    if (octaveIndex < 0)
-                    {
-                        octaveIndex = MusicGenerator.Notes.GetLength(1) - 1;
-                    }
-                }
+                adjustment += (int) _scale[mod(i * multiplier + additive, _scale.Length)] * multiplier;
             }
 
-            return MusicGenerator.Notes[noteIndex, octaveIndex];
+            return _startNote.Adjust(adjustment + semitoneAdjust);
         }
-        
+
         public Note[] GetTriad(int rootDegree, Tonality tonality, int inversion = 0)
         {
             if (tonality == Tonality.Major)
@@ -97,24 +84,24 @@ namespace Music
                 {
                     case 0:
                         return new[]
-                            {GetNote(rootDegree), GetNote(rootDegree + 2, Accidental.Flat), GetNote(rootDegree + 4)};
+                            {GetNote(rootDegree), GetNote(rootDegree + 2, -1), GetNote(rootDegree + 4)};
                     case 1:
                         return new[]
-                            {GetNote(rootDegree - 5, Accidental.Flat), GetNote(rootDegree - 3), GetNote(rootDegree)};
+                            {GetNote(rootDegree), GetNote(rootDegree - 5, -1), GetNote(rootDegree - 3)};
                     case 2:
                         return new[]
-                            {GetNote(rootDegree - 3), GetNote(rootDegree), GetNote(rootDegree + 2, Accidental.Flat)};
+                            {GetNote(rootDegree), GetNote(rootDegree - 3), GetNote(rootDegree + 2, -1)};
                 }
             }
-            
+
             return null;
         }
-        
+
         private int mod(int x, int m)
         {
             return (x % m + m) % m;
         }
-        
+
         public Scale(Note startNote, ScaleType type)
         {
             _startNote = startNote;

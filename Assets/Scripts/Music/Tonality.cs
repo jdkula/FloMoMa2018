@@ -2,9 +2,9 @@
 {
     public enum Tonality
     {
-        Major,
-        Minor,
-        Augmented,
-        Diminished
+        Major = 0,
+        Minor = -1,
+        Augmented = 1,
+        Diminished = -2
     }
 }

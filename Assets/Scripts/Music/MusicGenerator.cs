@@ -37,39 +37,45 @@ namespace Music
             }
             else
             {
-                r = new Random(genSeed);
+                r = new Random(genSeed + Art.SeedShifter);
             }
 
             Note[][] diddy = new Note[length][];
 
             Note startNote = GetRandomNote(r);
             Scale scale = new Scale(startNote, Scale.GetRandomScaleType(r));
-            Debug.Log(scale);
-            var nt1 = r.Next(0, 8);
-            var nv1 = r.Next(0, 3);
-            diddy[0] = scale.GetTriad(nt1, Tonality.Major, nv1);
-            Debug.Log("TRIAD: " + nt1 + "/" + nv1 + " => " + diddy[0].ArrayToString());
-            for (int i = 1; i < length; i++)
+            int lastStart = -999;
+            for (int i = 0; i < length; i++)
             {
-                int numNotes = r.Next(3) + 1;
+                int numNotes = r.Next(4);
+                int startDegree = -999;
+                while (startDegree == lastStart)
+                {
+                    startDegree = r.Next(0, 8);
+                }
                 switch (numNotes)
                 {
                     case 1:
-                        diddy[i] = new[] {scale.GetNote(r.Next(0, 8))};
+                        Note n = scale.GetNote(startDegree);
+                        diddy[i] = new[] {n};
                         break;
                     case 2:
-                        diddy[i] = new[] {scale.GetNote(r.Next(0, 8))};
+                        Note start = scale.GetNote(startDegree);
+                        int interval = r.Next(2, 5);
+                        diddy[i] = new[] {start, start.GetInterval(interval, Tonality.Major)};
                         break;
-                    case 3:
-                        var nt = r.Next(0, 8);
-                        var nv = r.Next(0, 3);
-                        diddy[i] = scale.GetTriad(nt, Tonality.Major, nv);
-                        Debug.Log("TRIAD: " + nt + "/" + nv + " => " + diddy[i].ArrayToString());
+                    default:
+                        Note[] triad = scale.GetTriad(startDegree, Tonality.Major, r.Next(0, 3));
+                        diddy[i] = triad;
                         break;
                 }
+
+                lastStart = startDegree;
             }
 
-            diddy[diddy.Length - 1] = scale.GetTriad(0, Tonality.Major, 1);
+            Note[] finalTriad = scale.GetTriad(0, Tonality.Major, 1);
+
+            diddy[diddy.Length - 1] = finalTriad;
             Debug.Log("First Note: " + startNote);
             diddy.PrintNoteArray();
             return diddy;
@@ -79,7 +85,7 @@ namespace Music
         {
             if (r == null) r = new Random();
             int randomNote = r.Next(Notes.GetLength(0));
-            int randomOctave = r.Next(1, Notes.GetLength(1) - 1);
+            int randomOctave = r.Next(Notes.GetLength(1));
             return Notes[randomNote, randomOctave];
         }
 
@@ -108,20 +114,30 @@ namespace Music
             s += "}";
             Debug.Log(s);
         }
-        
+
         public static string ArrayToString(this object[] arr)
         {
-            string s = "{";
-            foreach (object o in arr)
+            if (arr != null)
             {
-                s += o.ToString();
-                s += ", ";
-            }
+                string s = "{";
+                foreach (object o in arr)
+                {
+                    if (o == null)
+                    {
+                        s += "null";
+                    }
+                    else
+                    {
+                        s += o.ToString();
+                    }
+                    s += ", ";
+                }
 
-            s = s.Remove(s.Length - 2, 2);
-            s += "}";
-            return s;
+                s = s.Remove(s.Length - 2, 2);
+                s += "}";
+                return s;
+            }
+            return "";
         }
-    
     }
 }
