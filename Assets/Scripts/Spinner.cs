@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Causes the attached GameObject to rotate around a point.
+/// </summary>
 public class Spinner : MonoBehaviour
 {
 

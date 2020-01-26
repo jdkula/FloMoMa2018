@@ -1,6 +1,9 @@
 ﻿using Music;
 using UnityEngine;
 
+/// <summary>
+/// Represents the actual lines that are drawn between letters.
+/// </summary>
 [RequireComponent(typeof(LineRenderer))]
 [RequireComponent(typeof(AudioSource))]
 public class Line : MonoBehaviour
